@@ -3,9 +3,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import List, Optional, Sequence, Tuple
+from typing import Optional, Sequence, Tuple
 
-import numpy as np
 import pandas as pd
 from sklearn.cluster import KMeans
 from sklearn.compose import ColumnTransformer
@@ -29,7 +28,10 @@ class RFMConfig:
     random_state: int = 42
 
 
-def add_time_parts(df: pd.DataFrame, time_col: str = "TransactionStartTime") -> pd.DataFrame:
+def add_time_parts(
+    df: pd.DataFrame,
+    time_col: str = "TransactionStartTime",
+) -> pd.DataFrame:
     """Extract hour, day, month, and year from the transaction timestamp."""
     if time_col not in df.columns:
         raise KeyError(f"Expected column '{time_col}' in dataframe")
@@ -136,7 +138,11 @@ def merge_rfm_labels(
     cfg = config or RFMConfig()
     rfm = compute_rfm(df, cfg)
     labeled = label_high_risk_cluster(rfm, cfg)
-    merged = df.merge(labeled[[cfg.customer_col, "is_high_risk"]], on=cfg.customer_col, how="left")
+    merged = df.merge(
+        labeled[[cfg.customer_col, "is_high_risk"]],
+        on=cfg.customer_col,
+        how="left",
+    )
     return merged
 
 
@@ -194,7 +200,11 @@ def build_feature_table(
     enriched = add_time_parts(df, cfg.datetime_col)
     aggregated = aggregate_customer_features(enriched, cfg.customer_col, cfg.amount_col)
     labeled = label_high_risk_cluster(compute_rfm(enriched, cfg), cfg)
-    feature_table = aggregated.merge(labeled[[cfg.customer_col, "is_high_risk"]], on=cfg.customer_col, how="left")
+    feature_table = aggregated.merge(
+        labeled[[cfg.customer_col, "is_high_risk"]],
+        on=cfg.customer_col,
+        how="left",
+    )
     return feature_table
 
 
