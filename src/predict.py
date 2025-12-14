@@ -4,7 +4,6 @@ from __future__ import annotations
 import argparse
 import os
 from pathlib import Path
-from typing import Iterable
 
 import mlflow.pyfunc
 import pandas as pd
@@ -39,10 +38,26 @@ def predict(model_uri: str, data: pd.DataFrame) -> pd.DataFrame:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Score customers with trained model")
-    parser.add_argument("input", type=str, help="Path to CSV or JSON with feature columns")
-    parser.add_argument("--model-uri", type=str, default=DEFAULT_MODEL_URI, help="MLflow model URI")
-    parser.add_argument("--output", type=str, default="predictions.csv", help="Output CSV path")
+    parser = argparse.ArgumentParser(
+        description="Score customers with trained model",
+    )
+    parser.add_argument(
+        "input",
+        type=str,
+        help="Path to CSV or JSON with feature columns",
+    )
+    parser.add_argument(
+        "--model-uri",
+        type=str,
+        default=DEFAULT_MODEL_URI,
+        help="MLflow model URI",
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default="predictions.csv",
+        help="Output CSV path",
+    )
     args = parser.parse_args()
 
     df = load_input(Path(args.input))

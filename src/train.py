@@ -11,7 +11,13 @@ import numpy as np
 import pandas as pd
 from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, roc_auc_score
+from sklearn.metrics import (
+    accuracy_score,
+    f1_score,
+    precision_score,
+    recall_score,
+    roc_auc_score,
+)
 from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.pipeline import Pipeline
 
@@ -26,7 +32,10 @@ def load_dataset(path: Path) -> pd.DataFrame:
     return pd.read_csv(path)
 
 
-def split_features_labels(df: pd.DataFrame, target_col: str = TARGET_COL) -> Tuple[pd.DataFrame, pd.Series]:
+def split_features_labels(
+    df: pd.DataFrame,
+    target_col: str = TARGET_COL,
+) -> Tuple[pd.DataFrame, pd.Series]:
     if target_col not in df.columns:
         raise KeyError(f"Target column {target_col} missing")
     X = df.drop(columns=[target_col])
@@ -82,7 +91,11 @@ def train_and_log(df: pd.DataFrame, experiment_name: str = "credit-risk") -> str
     best_run_uri = ""
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42, stratify=y
+        X,
+        y,
+        test_size=0.2,
+        random_state=42,
+        stratify=y,
     )
 
     for name, (estimator, param_grid) in models.items():
@@ -113,7 +126,12 @@ def train_and_log(df: pd.DataFrame, experiment_name: str = "credit-risk") -> str
 
 def main():
     parser = argparse.ArgumentParser(description="Train credit risk models")
-    parser.add_argument("--data", type=str, default="data/processed/features.csv", help="Path to processed feature table")
+    parser.add_argument(
+        "--data",
+        type=str,
+        default="data/processed/features.csv",
+        help="Path to processed feature table",
+    )
     args = parser.parse_args()
     df = load_dataset(Path(args.data))
     best_uri = train_and_log(df)
