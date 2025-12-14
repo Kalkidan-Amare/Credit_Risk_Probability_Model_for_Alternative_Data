@@ -81,7 +81,9 @@ def compute_rfm(
 
     data = df.copy()
     data[cfg.datetime_col] = pd.to_datetime(data[cfg.datetime_col])
-    snapshot = cfg.snapshot_date or (data[cfg.datetime_col].max() + timedelta(days=1))
+    snapshot = cfg.snapshot_date or (
+        data[cfg.datetime_col].max() + timedelta(days=1)
+    )
     recency = (
         data.groupby(cfg.customer_col)[cfg.datetime_col]
         .max()
@@ -114,7 +116,11 @@ def label_high_risk_cluster(
     features = rfm[required_cols].copy()
     scaler = StandardScaler()
     scaled = scaler.fit_transform(features)
-    model = KMeans(n_clusters=cfg.n_clusters, random_state=cfg.random_state, n_init=10)
+    model = KMeans(
+        n_clusters=cfg.n_clusters,
+        random_state=cfg.random_state,
+        n_init=10,
+    )
     clusters = model.fit_predict(scaled)
     rfm = rfm.copy()
     rfm["cluster"] = clusters
@@ -134,7 +140,7 @@ def merge_rfm_labels(
     df: pd.DataFrame,
     config: Optional[RFMConfig] = None,
 ) -> pd.DataFrame:
-    """Merge RFM-derived high-risk labels back to the transaction-level dataset."""
+    """Merge RFMderived high-risk labels back to the transaction dataset"""
     cfg = config or RFMConfig()
     rfm = compute_rfm(df, cfg)
     labeled = label_high_risk_cluster(rfm, cfg)
@@ -150,7 +156,7 @@ def build_preprocessing_pipeline(
     categorical_features: Sequence[str],
     numeric_features: Sequence[str],
 ) -> ColumnTransformer:
-    """Create a ColumnTransformer with imputation, scaling, and one-hot encoding."""
+    """Create a ColumnTransformer with imputation,scaling,one-hot encoding"""
     numeric_transformer = Pipeline(
         steps=[
             ("imputer", SimpleImputer(strategy="median")),
@@ -195,11 +201,18 @@ def build_feature_table(
     df: pd.DataFrame,
     config: Optional[RFMConfig] = None,
 ) -> pd.DataFrame:
-    """Create a model-ready feature table with aggregates and datetime parts."""
+    """Create a model-ready feature table with aggregates, datetime"""
     cfg = config or RFMConfig()
     enriched = add_time_parts(df, cfg.datetime_col)
-    aggregated = aggregate_customer_features(enriched, cfg.customer_col, cfg.amount_col)
-    labeled = label_high_risk_cluster(compute_rfm(enriched, cfg), cfg)
+    aggregated = aggregate_customer_features(
+        enriched,
+        cfg.customer_col,
+        cfg.amount_col,
+    )
+    labeled = label_high_risk_cluster(
+        compute_rfm(enriched, cfg),
+        cfg,
+    )
     feature_table = aggregated.merge(
         labeled[[cfg.customer_col, "is_high_risk"]],
         on=cfg.customer_col,

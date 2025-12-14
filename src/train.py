@@ -11,7 +11,13 @@ import numpy as np
 import pandas as pd
 from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, roc_auc_score
+from sklearn.metrics import (
+    accuracy_score,
+    f1_score,
+    precision_score,
+    recall_score,
+    roc_auc_score,
+)
 from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.pipeline import Pipeline
 
@@ -26,7 +32,10 @@ def load_dataset(path: Path) -> pd.DataFrame:
     return pd.read_csv(path)
 
 
-def split_features_labels(df: pd.DataFrame, target_col: str = TARGET_COL) -> Tuple[pd.DataFrame, pd.Series]:
+def split_features_labels(
+    df: pd.DataFrame,
+    target_col: str = TARGET_COL,
+) -> Tuple[pd.DataFrame, pd.Series]:
     if target_col not in df.columns:
         raise KeyError(f"Target column {target_col} missing")
     X = df.drop(columns=[target_col])
@@ -44,15 +53,24 @@ def build_models() -> Dict[str, Tuple[object, dict]]:
     models = {
         "log_reg": (
             LogisticRegression(max_iter=500),
-            {"model__C": [0.1, 1.0, 10.0], "model__penalty": ["l2"]},
+            {
+                "model__C": [0.1, 1.0, 10.0],
+                "model__penalty": ["l2"],
+            },
         ),
         "random_forest": (
             RandomForestClassifier(random_state=42),
-            {"model__n_estimators": [100, 200], "model__max_depth": [None, 8]},
+            {
+                "model__n_estimators": [100, 200],
+                "model__max_depth": [None, 8],
+            },
         ),
         "gradient_boosting": (
             GradientBoostingClassifier(random_state=42),
-            {"model__n_estimators": [100, 200], "model__learning_rate": [0.05, 0.1]},
+            {
+                "model__n_estimators": [100, 200],
+                "model__learning_rate": [0.05, 0.1],
+            },
         ),
     }
     return models
@@ -71,7 +89,7 @@ def evaluate_model(model, X_test, y_test) -> Dict[str, float]:
     return metrics
 
 
-def train_and_log(df: pd.DataFrame, experiment_name: str = "credit-risk") -> str:
+def train_and_log(df: pd.DataFrame, experiment_name: str = "credit-risk"):
     mlflow.set_experiment(experiment_name)
     X, y = split_features_labels(df)
     categorical, numeric = infer_column_types(X)
@@ -82,11 +100,20 @@ def train_and_log(df: pd.DataFrame, experiment_name: str = "credit-risk") -> str
     best_run_uri = ""
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42, stratify=y
+        X,
+        y,
+        test_size=0.2,
+        random_state=42,
+        stratify=y,
     )
 
     for name, (estimator, param_grid) in models.items():
-        pipeline = Pipeline(steps=[("preprocess", preprocess), ("model", estimator)])
+        pipeline = Pipeline(
+            steps=[
+                ("preprocess", preprocess),
+                ("model", estimator),
+            ]
+        )
         search = GridSearchCV(
             pipeline,
             param_grid=param_grid,
@@ -99,7 +126,10 @@ def train_and_log(df: pd.DataFrame, experiment_name: str = "credit-risk") -> str
             metrics = evaluate_model(search.best_estimator_, X_test, y_test)
             mlflow.log_params(search.best_params_)
             mlflow.log_metrics(metrics)
-            mlflow.sklearn.log_model(search.best_estimator_, artifact_path="model")
+            mlflow.sklearn.log_model(
+                search.best_estimator_,
+                artifact_path="model",
+            )
             if metrics["roc_auc"] > best_auc:
                 best_auc = metrics["roc_auc"]
                 best_run_uri = run.info.artifact_uri + "/model"
@@ -113,7 +143,12 @@ def train_and_log(df: pd.DataFrame, experiment_name: str = "credit-risk") -> str
 
 def main():
     parser = argparse.ArgumentParser(description="Train credit risk models")
-    parser.add_argument("--data", type=str, default="data/processed/features.csv", help="Path to processed feature table")
+    parser.add_argument(
+        "--data",
+        type=str,
+        default="data/processed/features.csv",
+        help="Path to processed feature table",
+    )
     args = parser.parse_args()
     df = load_dataset(Path(args.data))
     best_uri = train_and_log(df)

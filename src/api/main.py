@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import os
-from typing import Optional
 
 import mlflow.pyfunc
 import pandas as pd
@@ -19,7 +18,8 @@ def load_model(model_uri: str = MODEL_URI):
     try:
         return mlflow.pyfunc.load_model(model_uri)
     except Exception as exc:  # pragma: no cover - depends on runtime env
-        raise RuntimeError(f"Failed to load model from {model_uri}: {exc}")
+        msg = f"Failed to load model from {model_uri}: {exc}"
+        raise RuntimeError(msg)
 
 
 model = load_model()
@@ -44,7 +44,14 @@ def predict(request: PredictionRequest) -> PredictionResponse:
             except Exception:
                 proba = None
         risk_probability = float(proba if proba is not None else pred[0])
-        label = int(round(risk_probability)) if proba is not None else int(pred[0])
-        return PredictionResponse(risk_probability=risk_probability, label=label)
+        label = (
+            int(round(risk_probability))
+            if proba is not None
+            else int(pred[0])
+        )
+        return PredictionResponse(
+            risk_probability=risk_probability,
+            label=label,
+        )
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
