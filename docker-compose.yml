@@ -1,0 +1,12 @@
+version: "3.9"
+
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - MLFLOW_MODEL_URI=${MLFLOW_MODEL_URI:-models:/credit-risk-model/1}
+    volumes:
+      - ./mlruns:/app/mlruns
+    command: uvicorn src.api.main:app --host 0.0.0.0 --port 8000
