@@ -26,7 +26,13 @@ def sample_df():
 def test_aggregate_customer_features_columns():
     df = sample_df()
     aggregated = aggregate_customer_features(df)
-    expected_cols = {"CustomerId", "total_amount", "avg_amount", "transaction_count", "std_amount"}
+    expected_cols = {
+        "CustomerId",
+        "total_amount",
+        "avg_amount",
+        "transaction_count",
+        "std_amount",
+    }
     assert expected_cols.issubset(set(aggregated.columns))
     assert aggregated.loc[aggregated["CustomerId"] == 1, "transaction_count"].item() == 2
 
