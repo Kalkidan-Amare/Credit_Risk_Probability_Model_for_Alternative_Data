@@ -1,0 +1,19 @@
+# Data and artifacts
+/data/
+/mlruns/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.env
+*.egg-info/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# VS Code
+.vscode/
+
+# OS
+.DS_Store
