@@ -44,7 +44,11 @@ def predict(request: PredictionRequest) -> PredictionResponse:
             except Exception:
                 proba = None
         risk_probability = float(proba if proba is not None else pred[0])
-        label = int(round(risk_probability)) if proba is not None else int(pred[0])
+        label = (
+            int(round(risk_probability))
+            if proba is not None
+            else int(pred[0])
+        )
         return PredictionResponse(
             risk_probability=risk_probability,
             label=label,

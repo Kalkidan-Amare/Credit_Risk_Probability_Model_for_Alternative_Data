@@ -34,7 +34,13 @@ def test_aggregate_customer_features_columns():
         "std_amount",
     }
     assert expected_cols.issubset(set(aggregated.columns))
-    assert aggregated.loc[aggregated["CustomerId"] == 1, "transaction_count"].item() == 2
+    assert (
+        aggregated.loc[
+            aggregated["CustomerId"] == 1,
+            "transaction_count",
+        ].item()
+        == 2
+    )
 
 
 def test_label_high_risk_cluster_outputs_flag():

@@ -53,15 +53,24 @@ def build_models() -> Dict[str, Tuple[object, dict]]:
     models = {
         "log_reg": (
             LogisticRegression(max_iter=500),
-            {"model__C": [0.1, 1.0, 10.0], "model__penalty": ["l2"]},
+            {
+                "model__C": [0.1, 1.0, 10.0],
+                "model__penalty": ["l2"],
+            },
         ),
         "random_forest": (
             RandomForestClassifier(random_state=42),
-            {"model__n_estimators": [100, 200], "model__max_depth": [None, 8]},
+            {
+                "model__n_estimators": [100, 200],
+                "model__max_depth": [None, 8],
+            },
         ),
         "gradient_boosting": (
             GradientBoostingClassifier(random_state=42),
-            {"model__n_estimators": [100, 200], "model__learning_rate": [0.05, 0.1]},
+            {
+                "model__n_estimators": [100, 200],
+                "model__learning_rate": [0.05, 0.1],
+            },
         ),
     }
     return models
@@ -99,7 +108,12 @@ def train_and_log(df: pd.DataFrame, experiment_name: str = "credit-risk") -> str
     )
 
     for name, (estimator, param_grid) in models.items():
-        pipeline = Pipeline(steps=[("preprocess", preprocess), ("model", estimator)])
+        pipeline = Pipeline(
+            steps=[
+                ("preprocess", preprocess),
+                ("model", estimator),
+            ]
+        )
         search = GridSearchCV(
             pipeline,
             param_grid=param_grid,
@@ -112,7 +126,10 @@ def train_and_log(df: pd.DataFrame, experiment_name: str = "credit-risk") -> str
             metrics = evaluate_model(search.best_estimator_, X_test, y_test)
             mlflow.log_params(search.best_params_)
             mlflow.log_metrics(metrics)
-            mlflow.sklearn.log_model(search.best_estimator_, artifact_path="model")
+            mlflow.sklearn.log_model(
+                search.best_estimator_,
+                artifact_path="model",
+            )
             if metrics["roc_auc"] > best_auc:
                 best_auc = metrics["roc_auc"]
                 best_run_uri = run.info.artifact_uri + "/model"

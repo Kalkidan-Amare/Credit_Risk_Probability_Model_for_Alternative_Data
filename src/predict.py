@@ -8,7 +8,10 @@ from pathlib import Path
 import mlflow.pyfunc
 import pandas as pd
 
-DEFAULT_MODEL_URI = os.getenv("MLFLOW_MODEL_URI", "models:/credit-risk-model/1")
+DEFAULT_MODEL_URI = os.getenv(
+    "MLFLOW_MODEL_URI",
+    "models:/credit-risk-model/1",
+)
 
 
 def load_input(path: Path) -> pd.DataFrame:
