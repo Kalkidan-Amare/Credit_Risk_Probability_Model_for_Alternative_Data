@@ -140,7 +140,7 @@ def merge_rfm_labels(
     df: pd.DataFrame,
     config: Optional[RFMConfig] = None,
 ) -> pd.DataFrame:
-    """Merge RFM-derived high-risk labels back to the transaction-level dataset."""
+    """Merge RFMderived high-risk labels back to the transaction dataset"""
     cfg = config or RFMConfig()
     rfm = compute_rfm(df, cfg)
     labeled = label_high_risk_cluster(rfm, cfg)
@@ -156,7 +156,7 @@ def build_preprocessing_pipeline(
     categorical_features: Sequence[str],
     numeric_features: Sequence[str],
 ) -> ColumnTransformer:
-    """Create a ColumnTransformer with imputation, scaling, and one-hot encoding."""
+    """Create a ColumnTransformer with imputation,scaling,one-hot encoding"""
     numeric_transformer = Pipeline(
         steps=[
             ("imputer", SimpleImputer(strategy="median")),
@@ -201,7 +201,7 @@ def build_feature_table(
     df: pd.DataFrame,
     config: Optional[RFMConfig] = None,
 ) -> pd.DataFrame:
-    """Create a model-ready feature table with aggregates and datetime parts."""
+    """Create a model-ready feature table with aggregates, datetime"""
     cfg = config or RFMConfig()
     enriched = add_time_parts(df, cfg.datetime_col)
     aggregated = aggregate_customer_features(

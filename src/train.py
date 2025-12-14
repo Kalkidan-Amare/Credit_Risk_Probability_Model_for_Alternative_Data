@@ -89,7 +89,7 @@ def evaluate_model(model, X_test, y_test) -> Dict[str, float]:
     return metrics
 
 
-def train_and_log(df: pd.DataFrame, experiment_name: str = "credit-risk") -> str:
+def train_and_log(df: pd.DataFrame, experiment_name: str = "credit-risk"):
     mlflow.set_experiment(experiment_name)
     X, y = split_features_labels(df)
     categorical, numeric = infer_column_types(X)
